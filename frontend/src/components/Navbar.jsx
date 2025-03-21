@@ -1,12 +1,12 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { assets } from '../assets/assets'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext'
 
 const Navbar = () => {
-
     const { showSearch, setShowSearch, getCartCount, navigate, token, setToken, setCartItems } = useContext(ShopContext)
     const [visible, setVisible] = React.useState(false)
+    const location = useLocation()
 
     const logout = () => {
         navigate('/login');
@@ -15,9 +15,42 @@ const Navbar = () => {
         setCartItems({});
     }
 
+    // Handle scroll to section
+    const scrollToSection = (sectionId) => {
+        const currentPath = location.pathname
+
+        if (currentPath === '/') {
+            // Already on home page, just scroll
+            const element = document.getElementById(sectionId)
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' })
+            }
+        } else {
+            // On another page, navigate to home with section info
+            navigate('/', { state: { scrollTo: sectionId } })
+        }
+
+        // Close mobile menu if open
+        setVisible(false)
+    }
+
+    // Check for scrollTo in location state when component mounts or updates
+    useEffect(() => {
+        if (location.state && location.state.scrollTo) {
+            setTimeout(() => {
+                const element = document.getElementById(location.state.scrollTo)
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' })
+
+                    // Clear the state after scrolling
+                    window.history.replaceState({}, document.title)
+                }
+            }, 100) // Small delay to ensure the DOM is ready
+        }
+    }, [location])
+
     return (
         <div className='flex items-center justify-between py-4 font-medium'>
-            {/* <img src={assets.logo} className='w-36' alt="" /> */}
             <Link to="/" className="no-underline">
                 <h1 className="text-xl text-gray-700 tracking-widest uppercase">
                     ULYSSE SOCCER TRAINING
@@ -28,16 +61,24 @@ const Navbar = () => {
                     <p>HOME</p>
                     <hr className='w-2/4 border-none h-[2px] bg-gray-700 hidden' />
                 </NavLink>
-                <NavLink to='/collection' className="flex flex-col items-center gap-1">
-                    <p>COLLECTION</p>
+                <div onClick={() => scrollToSection('Programs')} className="flex flex-col items-center gap-1 cursor-pointer">
+                    <p>PROGRAMS</p>
                     <hr className='w-2/4 border-none h-[2px] bg-gray-700 hidden' />
-                </NavLink>
-                <NavLink to='/about' className="flex flex-col items-center gap-1">
+                </div>
+                {/* <NavLink to='/about' className="flex flex-col items-center gap-1">
                     <p>ABOUT</p>
                     <hr className='w-2/4 border-none h-[2px] bg-gray-700 hidden' />
-                </NavLink>
-                <NavLink to='/contact' className="flex flex-col items-center gap-1">
+                </NavLink> */}
+                <div onClick={() => scrollToSection('Contact')} className="flex flex-col items-center gap-1 cursor-pointer">
                     <p>CONTACT</p>
+                    <hr className='w-2/4 border-none h-[2px] bg-gray-700 hidden' />
+                </div>
+                <div onClick={() => scrollToSection('Affiliates')} className="flex flex-col items-center gap-1 cursor-pointer">
+                    <p>AFFILIATES</p>
+                    <hr className='w-2/4 border-none h-[2px] bg-gray-700 hidden' />
+                </div>
+                <NavLink to='/coaches' className="flex flex-col items-center gap-1">
+                    <p>COACHES</p>
                     <hr className='w-2/4 border-none h-[2px] bg-gray-700 hidden' />
                 </NavLink>
             </ul>
@@ -62,18 +103,17 @@ const Navbar = () => {
                 </Link>
                 <img onClick={() => setVisible(true)} src={assets.menu_icon} className='w-5 cursor-pointer sm:hidden' alt="" />
             </div>
-
             {/* Sidebar menu for smaller screen */}
-            <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${visible ? 'w-full' : 'w-0'}`}>
+            <div className={`fixed top-0 right-0 bottom-0 left-0 h-screen overflow-y-auto bg-white transition-all ${visible ? 'z-50' : 'hidden'}`}>
                 <div className='flex flex-col text-gray-600'>
                     <div onClick={() => setVisible(false)} className='flex items-center gap-4 p-3 cursor-pointer'>
                         <img src={assets.dropdown_icon} className='h-4 rotate-180' alt="" />
                         <p>Back</p>
                     </div>
                     <NavLink onClick={() => setVisible(false)} to='/' className='py-2 pl-6'>HOME</NavLink>
-                    <NavLink onClick={() => setVisible(false)} to='/collection' className='py-2 pl-6'>COLLECTION</NavLink>
+                    <div onClick={() => scrollToSection('Programs')} className='py-2 pl-6 cursor-pointer'>PROGRAMS</div>
                     <NavLink onClick={() => setVisible(false)} to='/about' className='py-2 pl-6'>ABOUT</NavLink>
-                    <NavLink onClick={() => setVisible(false)} to='/contact' className='py-2 pl-6'>CONTACT</NavLink>
+                    <div onClick={() => scrollToSection('Contact')} className='py-2 pl-6 cursor-pointer'>CONTACT</div>
                 </div>
             </div>
         </div>

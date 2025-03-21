@@ -10,27 +10,61 @@ const Add = ({ token }) => {
     const [image3, setImage3] = useState(false);
     const [image4, setImage4] = useState(false);
 
+    // Basic info
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [price, setPrice] = useState('');
-    const [category, setCategory] = useState('Men');
-    const [subCategory, setSubCategory] = useState('Topwear');
-    const [bestseller, setBestseller] = useState(false);
-    const [sizes, setSizes] = useState([]);
+    const [location, setLocation] = useState('');
+
+    // Date range
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+    // Time fields
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+
+    // Age range
+    const [ageMin, setAgeMin] = useState('');
+    const [ageMax, setAgeMax] = useState('');
+
+    // Pricing options
+    const [pricePerSession, setPricePerSession] = useState('');
+    const [priceFullCourse, setPriceFullCourse] = useState('');
+    const [priceEarlyBird, setPriceEarlyBird] = useState('');
+    const [priceHalfDay, setPriceHalfDay] = useState('');
+    const [priceFullDay, setPriceFullDay] = useState('');
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
 
         try {
             const formData = new FormData();
+
+            // Basic info
             formData.append("name", name);
             formData.append("description", description);
-            formData.append("price", price);
-            formData.append("category", category);
-            formData.append("subCategory", subCategory);
-            formData.append("bestseller", bestseller);
-            formData.append("sizes", JSON.stringify(sizes));
+            formData.append("location", location);
 
+            // Date (using the start date for the main date field)
+            formData.append("date", startDate);
+            if (endDate) formData.append("endDate", endDate);
+
+            // Time fields
+            formData.append("startTime", startTime);
+            formData.append("endTime", endTime);
+
+            // Age range
+            formData.append("ageMin", ageMin);
+            formData.append("ageMax", ageMax);
+
+            // Pricing options
+            if (pricePerSession) formData.append("pricePerSession", pricePerSession);
+            if (priceFullCourse) formData.append("priceFullCourse", priceFullCourse);
+            if (priceEarlyBird) formData.append("priceEarlyBird", priceEarlyBird);
+            if (priceHalfDay) formData.append("priceHalfDay", priceHalfDay);
+            if (priceFullDay) formData.append("priceFullDay", priceFullDay);
+
+            // Images
             image1 && formData.append("image1", image1);
             image2 && formData.append("image2", image2);
             image3 && formData.append("image3", image3);
@@ -41,9 +75,21 @@ const Add = ({ token }) => {
 
             if (response.data.success) {
                 toast.success(response.data.message);
+                // Reset all fields
                 setName('');
                 setDescription('');
-                setPrice('');
+                setLocation('');
+                setStartDate('');
+                setEndDate('');
+                setStartTime('');
+                setEndTime('');
+                setAgeMin('');
+                setAgeMax('');
+                setPricePerSession('');
+                setPriceFullCourse('');
+                setPriceEarlyBird('');
+                setPriceHalfDay('');
+                setPriceFullDay('');
                 setImage1(false);
                 setImage2(false);
                 setImage3(false);
@@ -59,8 +105,9 @@ const Add = ({ token }) => {
 
     return (
         <form onSubmit={onSubmitHandler} className='flex flex-col w-full items-start gap-3'>
+            {/* Image uploads */}
             <div className=''>
-                <p className='mb-2'>Upload Image</p>
+                <p className='mb-2'>Upload Images</p>
                 <div className='flex gap-2'>
                     <label className='cursor-pointer' htmlFor='image1'>
                         <img className='w-20' src={!image1 ? assets.upload_area : URL.createObjectURL(image1)} alt="" />
@@ -80,61 +127,96 @@ const Add = ({ token }) => {
                     </label>
                 </div>
             </div>
+
+            {/* Basic information */}
             <div className='w-full'>
-                <p className='mb-2'>Product name</p>
-                <input onChange={(e) => setName(e.target.value)} value={name} className='w-full max-w-[500px] px-3 py-2' type="text" placeholder='Type here' required />
+                <p className='mb-2'>Program Name</p>
+                <input onChange={(e) => setName(e.target.value)} value={name} className='w-full max-w-[500px] px-3 py-2' type="text" placeholder='Enter program name' required />
             </div>
+
             <div className='w-full'>
-                <p className='mb-2'>Product description</p>
-                <textarea onChange={(e) => setDescription(e.target.value)} value={description} className='w-full max-w-[500px] px-3 py-2' type="text" placeholder='Write content here' required />
+                <p className='mb-2'>Program Description</p>
+                <textarea onChange={(e) => setDescription(e.target.value)} value={description} className='w-full max-w-[500px] px-3 py-2' rows="4" placeholder='Enter program description' required />
             </div>
+
+            <div className='w-full'>
+                <p className='mb-2'>Location</p>
+                <input onChange={(e) => setLocation(e.target.value)} value={location} className='w-full max-w-[500px] px-3 py-2' type="text" placeholder='Enter location' required />
+            </div>
+
+            {/* Date range */}
             <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
                 <div>
-                    <p className='mb-2'>Product category</p>
-                    <select onChange={(e) => setCategory(e.target.value)} value={category} className='w-full px-3 py-2'>
-                        <option value="Men">Men</option>
-                        <option value="Women">Women</option>
-                        <option value="Kids">Kids</option>
-                    </select>
+                    <p className='mb-2'>Start Date</p>
+                    <input onChange={(e) => setStartDate(e.target.value)} value={startDate} className='w-full px-3 py-2' type="date" required />
                 </div>
                 <div>
-                    <p className='mb-2'>Sub category</p>
-                    <select onChange={(e) => setSubCategory(e.target.value)} value={subCategory} className='w-full px-3 py-2'>
-                        <option value="Topwear">Topwear</option>
-                        <option value="Bottomwear">Bottomwear</option>
-                        <option value="Winterwear">Winterwear</option>
-                    </select>
+                    <p className='mb-2'>End Date (Optional)</p>
+                    <input onChange={(e) => setEndDate(e.target.value)} value={endDate} className='w-full px-3 py-2' type="date" />
+                </div>
+            </div>
+
+            {/* Time fields */}
+            <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
+                <div>
+                    <p className='mb-2'>Start Time</p>
+                    <input onChange={(e) => setStartTime(e.target.value)} value={startTime} className='w-full px-3 py-2' type="time" required />
                 </div>
                 <div>
-                    <p className='mb-2'>Product price</p>
-                    <input onChange={(e) => setPrice(e.target.value)} value={price} className='w-full px-3 py-2 sm:w-[120px]' type="number" placeholder='25' />
+                    <p className='mb-2'>End Time</p>
+                    <input onChange={(e) => setEndTime(e.target.value)} value={endTime} className='w-full px-3 py-2' type="time" required />
                 </div>
             </div>
-            <div>
-                <p className='mb-2'>Product sizes</p>
-                <div className='flex gap-3'>
-                    <div onClick={() => setSizes(prev => prev.includes("S") ? prev.filter(item => item !== "S") : [...prev, "S"])}>
-                        <p className={`${sizes.includes("S") ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>S</p>
+
+            {/* Age range */}
+            <div className='flex flex-col sm:flex-row gap-2 w-full sm:gap-8'>
+                <div>
+                    <p className='mb-2'>Minimum Age</p>
+                    <input onChange={(e) => setAgeMin(e.target.value)} value={ageMin} className='w-full px-3 py-2 sm:w-[120px]' type="number" placeholder='7' required />
+                </div>
+                <div>
+                    <p className='mb-2'>Maximum Age</p>
+                    <input onChange={(e) => setAgeMax(e.target.value)} value={ageMax} className='w-full px-3 py-2 sm:w-[120px]' type="number" placeholder='14' required />
+                </div>
+            </div>
+
+            {/* Pricing options */}
+            <div className='w-full max-w-[700px]'>
+                <hr className='my-5 text-gray-500' />
+                <p className='mb-4 font-medium text-xl'>Pricing Options</p>
+                <div className='mb-4'>
+                    <p className='text-sm text-gray-600 mb-2'>Course Pricing</p>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                        <div>
+                            <p className='mb-2'>Early Bird Special</p>
+                            <input onChange={(e) => setPriceEarlyBird(e.target.value)} value={priceEarlyBird} className='w-full px-3 py-2' type="number" placeholder='180' />
+                        </div>
+                        <div>
+                            <p className='mb-2'>Per Session Price</p>
+                            <input onChange={(e) => setPricePerSession(e.target.value)} value={pricePerSession} className='w-full px-3 py-2' type="number" placeholder='25' />
+                        </div>
+                        <div>
+                            <p className='mb-2'>Full Course Price</p>
+                            <input onChange={(e) => setPriceFullCourse(e.target.value)} value={priceFullCourse} className='w-full px-3 py-2' type="number" placeholder='200' />
+                        </div>
                     </div>
-                    <div onClick={() => setSizes(prev => prev.includes("M") ? prev.filter(item => item !== "M") : [...prev, "M"])}>
-                        <p className={`${sizes.includes("M") ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>M</p>
-                    </div>
-                    <div onClick={() => setSizes(prev => prev.includes("L") ? prev.filter(item => item !== "L") : [...prev, "L"])}>
-                        <p className={`${sizes.includes("L") ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>L</p>
-                    </div>
-                    <div onClick={() => setSizes(prev => prev.includes("XL") ? prev.filter(item => item !== "XL") : [...prev, "XL"])}>
-                        <p className={`${sizes.includes("XL") ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>XL</p>
-                    </div>
-                    <div onClick={() => setSizes(prev => prev.includes("XXL") ? prev.filter(item => item !== "XXL") : [...prev, "XXL"])}>
-                        <p className={`${sizes.includes("XXL") ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>XXL</p>
+                </div>
+                <div>
+                    <p className='text-sm text-gray-600 mb-2'>Daily Rates</p>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                        <div>
+                            <p className='mb-2'>Half Day Price</p>
+                            <input onChange={(e) => setPriceHalfDay(e.target.value)} value={priceHalfDay} className='w-full px-3 py-2' type="number" placeholder='100' />
+                        </div>
+                        <div>
+                            <p className='mb-2'>Full Day Price</p>
+                            <input onChange={(e) => setPriceFullDay(e.target.value)} value={priceFullDay} className='w-full px-3 py-2' type="number" placeholder='180' />
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className='flex gap-2 mt-2'>
-                <input onChange={() => setBestseller(prev => !prev)} checked={bestseller} type="checkbox" id="bestseller" />
-                <label className='cursor-pointer' htmlFor="bestseller">Add to bestseller</label>
-            </div>
-            <button className='w-28 py-3 mt-4 bg-black text-white' type='submit'>ADD</button>
+
+            <button className='w-28 py-3 mt-6 bg-black text-white' type='submit'>ADD</button>
         </form>
     )
 }

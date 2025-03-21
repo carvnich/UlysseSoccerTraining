@@ -3,7 +3,24 @@ import productModel from "../models/productModel.js";
 
 const addProduct = async (req, res) => {
     try {
-        const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
+        const {
+            name,
+            description,
+            location,
+            startTime,
+            endTime,
+            ageMin,
+            ageMax,
+            pricePerSession,
+            priceFullCourse,
+            priceEarlyBird,
+            priceHalfDay,
+            priceFullDay
+        } = req.body;
+
+        // Parse the dates from the request
+        const date = new Date(req.body.date);
+        const endDate = req.body.endDate ? new Date(req.body.endDate) : null;
 
         const image1 = req.files.image1 && req.files.image1[0];
         const image2 = req.files.image2 && req.files.image2[0];
@@ -21,13 +38,25 @@ const addProduct = async (req, res) => {
         const productData = {
             name,
             description,
-            price: Number(price),
-            image: imagesURL,
-            category,
-            subCategory,
-            sizes: JSON.parse(sizes),
-            bestseller: bestseller === "true" ? true : false,
-            date: Date.now()
+            date,
+            endDate,
+            time: {
+                startTime,
+                endTime
+            },
+            location,
+            age: {
+                min: Number(ageMin),
+                max: Number(ageMax)
+            },
+            price: {
+                perSession: pricePerSession ? Number(pricePerSession) : undefined,
+                fullCourse: priceFullCourse ? Number(priceFullCourse) : undefined,
+                earlyBird: priceEarlyBird ? Number(priceEarlyBird) : undefined,
+                halfDay: priceHalfDay ? Number(priceHalfDay) : undefined,
+                fullDay: priceFullDay ? Number(priceFullDay) : undefined
+            },
+            image: imagesURL
         }
 
         const product = new productModel(productData);
